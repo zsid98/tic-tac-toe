@@ -1,4 +1,4 @@
-function (Gameboard() {
+const Gameboard = (function() {
    const rows = 3;
    const columns = 3;
    const board = [];
@@ -60,7 +60,6 @@ function GameController(
    playerOneName = "Player One",
    playerTwoName = "Player Two"
 ) {
-   const board = Gameboard();
 
    const players = [
       {
@@ -81,44 +80,67 @@ function GameController(
    const getActivePlayer = () => activePlayer;
 
    const printNewRound = () => {
-      board.printBoard();
+      Gameboard.printBoard();
       console.log(`${getActivePlayer().name}'s turn.`);
    }
 
    const checkWin = () => {
-      let n = board.length;
-      let winner;
+      const boardValues = Gameboard.getBoard().map(row => row.map(cell => cell.getValue()));
+      const token = activePlayer.token;
 
-      // check for diagonal wins
-      if ((board[0][0] === activePlayer && board[1][1] === activePlayer && board[2][2] === activePlayer) ||
-      (board[0][2] === activePlayer && board[1][1] === activePlayer && board[2][0] === activePlayer)) {
-         winner = activePlayer;
-         console.log(`Winner is ${activePlayer.name}!`);
-         return winner;
+      // Check rows
+      for (let i = 0; i < 3; i++) {
+         if (boardValues[i].every(cell => cell === token)) {
+            console.log(`Winner is ${activePlayer.name}!`);
+            return true;
+         }
+      }
+
+      // Check columns
+      for (let i = 0; i < 3; i++){
+         if (boardValues[0][i] === token &&
+             boardValues[1][i] === token &&
+             boardValues[2][i] === token) {
+               return true;
+             }
+         }
+
+      // Check diagonals
+
+      if (
+         (boardValues[0][0] === token && boardValues[1][1] === token && boardValues[2][2] === token) ||
+         (boardValues[0][2] === token && boardValues[1][1] === token && boardValues[2][0] === token)) {
+         return true;
       } 
 
-      // check for horizontal and vertical wins
-      for (let i = 0; i < n; i++) {
-         let horizontal = 0, vertical = 0;
-         for (let j = 0; j < board[i].length; j++) {
-            if (board[i][j] === activePlayer) {
-               horizontal ++;
-            } else if (board[j][i] === activePlayer) {
-               vertical ++;
-            }
-         }
-         if (horizontal === 3 || vertical === 3) {
-            winner = activePlayer;
-            console.log(`Winner is ${activePlayer.name}!`);
-            return winner;
-         }
-      }
+      return false; // No win
+   };
+
+   const isDraw = () => {
+      return Gameboard.getBoard()
+      .flat()
+      .every(cell => cell.getValue() !== 0);
    }
 
-   const playRound = () => {
-      while (!winner) {
+   const playRound = (row, col) => {
+      const tokenPlaced = Gameboard.dropToken(row, col, activePlayer.token);
+      if (!tokenPlaced) return;
+
+      if (checkWin()) {
+         console.log(`Winner is ${activePlayer.name}!`);
+         return;
       }
-   }
+
+      if (isDraw()) {
+         console.log("It's a draw!");
+         return;
+      }
+
+      switchPlayerTurn();
+      printNewRound();
+   };
+
+   return { playRound };
 
 }
 
