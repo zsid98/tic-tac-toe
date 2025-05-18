@@ -195,10 +195,11 @@ let game;
 function startGame() {
    let player1 = document.getElementById('player1').value;
    let player2 = document.getElementById('player2').value;
-   if (!player1.value) {
+
+   if (!player1) {
       player1 = 'Player One';
    };
-   if (!player2.value) {
+   if (!player2) {
       player2 = 'Player Two';
    };
 
@@ -215,6 +216,15 @@ startButton.addEventListener('click', () => {
 const restartButton = document.getElementById('restart-btn');
 restartButton.addEventListener('click', () => {
    Gameboard.resetBoard();
+   let player1 = document.getElementById('player1').value;
+   let player2 = document.getElementById('player2').value;
+   console.log(`Player 1: ${player1} Player 2: ${player2}`);
+   if (!player1) {
+      player1 = 'Player One';
+   };
+   if (!player2) {
+      player2 = 'Player Two';
+   };
    game = GameController(player1, player2);
    DisplayController.renderBoard();
    DisplayController.showMessage('');
